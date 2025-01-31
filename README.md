@@ -1,1 +1,5 @@
-# datalogCompiler
+# Datalog Compiler
+
+### Scanner
+
+### Parser
