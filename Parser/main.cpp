@@ -23,6 +23,7 @@ int main(int argc, char* argv[]) {
     s.scan();
     vector<Token> tokens = s.tokens;
 
+    //NOTE: Build a try/catch block around this call
     Parser p(tokens);
 
 
