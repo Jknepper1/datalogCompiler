@@ -1,21 +1,32 @@
+#include <iostream>
+#include <sstream>
+#include <fstream>
 #include <vector>
 #include "Token.h"
+#include "Scanner.h"
 #include "Parser.h"
 
 using namespace std;
 
-int main() {
+int main(int argc, char* argv[]) {
+    string filename = argv[1];
+    ifstream in(filename);
 
-  vector<Token> tokens = {
-    Token(ID,"Ned",2),
-    Token(LEFT_PAREN,"(",2),
-    Token(ID,"Ted",2),
-    Token(COMMA,",",2),
-    Token(ID,"Zed",2),
-    Token(RIGHT_PAREN,")",2),
-  };
+    stringstream buffer;
+    buffer << in.rdbuf();
+    string input = buffer.str(); 
+    in.close();
+    // NOTE: The << operator is an insertion operator, basically the strings in the file are inserted into the buffer
+    
 
-  Parser p = Parser(tokens);
-  p.scheme();
+    Scanner s(input); 
+    s.scan();
+    vector<Token> tokens = s.tokens;
 
+    Parser p(tokens);
+
+
+    s.printTotal(); // Prints the total number of tokens scanned
+
+    return 0;
 }
