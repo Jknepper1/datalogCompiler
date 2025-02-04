@@ -11,7 +11,7 @@ class Parser {
         Parser(const vector<Token>& tokens) : tokens(tokens) { }
 
     /********************
-     * MAIN GRAMMAR
+     *   MAIN GRAMMAR   *
      ********************/
 
      void datalogProgram() {
@@ -199,8 +199,9 @@ class Parser {
     }
 
     /********************************
-     * SUPPORTING FUNCTIONS         *
+     *     SUPPORTING FUNCTIONS     *
      ********************************/
+    
     void match(TokenType t) {
         cout << "match: " << t << endl; // For debugging
         // add code for matching token type t

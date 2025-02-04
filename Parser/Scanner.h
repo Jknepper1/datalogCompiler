@@ -124,7 +124,7 @@ class Scanner {
             // White space is not skipped inside strings
                 checkString();
                 break;
-            case '#':
+            case '#':               // NOTE: Project 2 should not parse comments. might just need to comment out this logic
                 checkComment();
                 break;
             default:

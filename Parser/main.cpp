@@ -21,13 +21,17 @@ int main(int argc, char* argv[]) {
 
     Scanner s(input); 
     s.scan();
+    s.printTotal();
     vector<Token> tokens = s.tokens;
 
     //NOTE: Build a try/catch block around this call
     Parser p(tokens);
+    while (true) {
+        cout << p.tokenType() << endl;
+        p.advanceToken();
+    }
 
-
-    s.printTotal(); // Prints the total number of tokens scanned
+     // Prints the total number of tokens scanned
 
     return 0;
 }
