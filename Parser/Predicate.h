@@ -19,7 +19,7 @@ class Predicate {
     public:
         Predicate(string name, vector<Parameter> parameters) : name(name), parameters(parameters) {}
 
-    void buildPredicate() { // Builds Schemes, Facts, and Queries as well
+    string toString() { // Builds Schemes, Facts, and Queries as well
         pred = name + "(";
         for (int i = 0; i < parameters.size(); i++) {
             pred += parameters[i].toString();
@@ -29,10 +29,11 @@ class Predicate {
             pred  += ")";
         }
 
+        return pred;
     }
 
-    string toString() {
-        return pred;
+    vector<Parameter> getParams() {
+        return parameters;
     }
 
 

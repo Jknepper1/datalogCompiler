@@ -15,8 +15,16 @@ class Parameter {
     public:
         Parameter(string value, bool isString) : value(value), isString(isString) {}
 
-    string const toString() {
-        cout << value << endl; // For Debugging?
+    // bool isString() {
+    //     return true;
+    // }
+
+    string toString() {
+        // cout << value << endl; // For Debugging?
         return value;
+    }
+
+    bool isStringLiteral() {
+        return isString;
     }
 };
