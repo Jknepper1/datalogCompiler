@@ -28,10 +28,12 @@ class DatalogProgram {
     public:
         void addScheme(Predicate scheme) {
             Schemes.push_back(scheme);
+            sNum++;
         }
 
         void addFacts(Predicate fact) {
             Facts.push_back(fact);
+            fNum++;
             
             for (Parameter f : fact.getParams()) { // Loops through each individual parameter in a single fact predicate
                 if (f.isStringLiteral()) { // Appens string literals ONLY to Domain list
@@ -42,14 +44,17 @@ class DatalogProgram {
 
         void addQueries(Predicate query) {
             Queries.push_back(query);
+            qNum++;
         }
 
         void addRule(Rule rule) { 
             Rules.push_back(rule);
+            rNum++;
         }
 
         void addDomain (string domain) {
             Domains.push_back(domain);
+            dNum++;
         }
 
     string toString () {
