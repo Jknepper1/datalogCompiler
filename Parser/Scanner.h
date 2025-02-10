@@ -29,14 +29,14 @@ class Scanner {
             total++;
             
             Token t = eof();
-            cout << t.toString() << endl;
+            // cout << t.toString() << endl;
             tokens.push_back(t);    // Add the current token to vector for Parser
         }
 
         while (!input.empty()) {
             
             Token t = scanToken();
-            cout << t.toString() << endl;
+            // cout << t.toString() << endl;
             tokens.push_back(t);
 
             if (incompleteStr == 1){ // Places EOF after an incomplete string
