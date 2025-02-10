@@ -1,15 +1,18 @@
 #include <vector>
 #include "Token.h"
+#include "DatalogProgram.h"
 
 using namespace std;
 
 class Parser {
     private:
-        vector<Token> tokens;
+        // Empty
         
-
     public:
+        vector<Token> tokens;
+        DatalogProgram d;
         Parser(const vector<Token>& tokens) : tokens(tokens) { }
+
 
     /********************
      *   MAIN GRAMMAR   *
@@ -180,6 +183,7 @@ class Parser {
     void idList() {
         if (tokenType() == COMMA) {
             match(COMMA);
+            // Match parameter?
             match(ID);
             idList();
         } else {
@@ -189,6 +193,7 @@ class Parser {
 
     void parameter() {
         if (tokenType() == STRING) {
+            
             match(STRING);
         }
         else if (tokenType() == ID) {
@@ -223,7 +228,6 @@ class Parser {
     }
 
     void throwError() {
-        // NOTE: Needs to eventually throw an error to the try catch block that will wrap main.cpp
-        cout << "error" << endl;
+        throw invalid_argument(tokens.at(0).toString()); // Prints error token
     }
 };

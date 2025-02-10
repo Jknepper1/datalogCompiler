@@ -52,14 +52,17 @@ class DatalogProgram {
             rNum++;
         }
 
+        // A Domain is a string literal inside facts
         void addDomain (string domain) {
             Domains.push_back(domain);
             dNum++;
         }
 
-    string toString () {
+    void toString () {
         /* Print SUCCESS! Here but maybe not in this function. Perhaps in main?*/
-
+        // Likey going to have a problem comparing int i to size_t .size()
+        cout << "Success!" << endl;
+        
         cout << "Schemes(" << sNum << "):" << endl;
         for(int i = 0; i < Schemes.size(); i++) {
             cout << Schemes[i].toString() << endl;

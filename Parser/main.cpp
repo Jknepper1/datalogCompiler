@@ -26,12 +26,20 @@ int main(int argc, char* argv[]) {
 
     //NOTE: Build a try/catch block around this call
     Parser p(tokens);
-    while (true) {
-        cout << p.tokenType() << endl;
-        p.advanceToken();
-    }
+    
+    try {
+       while (p.tokens.size() > 0) {
+            p.datalogProgram();
+       }
 
-     // Prints the total number of tokens scanned
+       // Print the program to string
+       p.d.toString(); // This is garbage syntax and probably not very secure...
+    
+    }
+        // Made by copilot as a temporary exception; no idea what this does
+        catch (const invalid_argument& e) {
+        cerr << "Failure!\n" << e.what() << endl;
+    }
 
     return 0;
 }
