@@ -31,7 +31,7 @@ class DatalogProgram {
             sNum++;
         }
 
-        void addFacts(Predicate fact) {
+        void addFact(Predicate fact) {
             Facts.push_back(fact);
             fNum++;
             
@@ -42,7 +42,7 @@ class DatalogProgram {
             }
         }
 
-        void addQueries(Predicate query) {
+        void addQuery(Predicate query) {
             Queries.push_back(query);
             qNum++;
         }
