@@ -31,7 +31,6 @@ int main(int argc, char* argv[]) {
        while (p.tokens.size() > 0) {
             p.datalogProgram();
        }
-
        // Print the program to string
        p.d.toString(); // This is garbage syntax and probably not very secure...
     
