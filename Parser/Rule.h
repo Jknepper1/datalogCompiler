@@ -22,7 +22,7 @@ class Rule {
 
     // }
 
-    void buildRule() {
+    string toString() {
         r += head.toString() + " :- ";
         for(int i = 0; i < body.size(); i++) {
             r += body[i].toString();
@@ -31,11 +31,13 @@ class Rule {
             }
         }
         r += ".";
-    }
 
-    string toString() {
         return r;
     }
+
+    // string toString() {
+    //     return r;
+    // }
 
 
 };

@@ -244,7 +244,7 @@ class Parser {
      ********************************/
     
     void match(TokenType t) {
-        cout << "match: " << t << endl; // For debugging
+        // cout << "match: " << t << endl; // For debugging
         // add code for matching token type t
         if (tokenType() == t) {
             advanceToken();
@@ -263,6 +263,6 @@ class Parser {
     }
 
     void throwError() {
-        throw invalid_argument(tokens.at(0).toString()); // Prints error token
+        throw invalid_argument(tokens.at(0).tokenData()); // Prints error token
     }
 };

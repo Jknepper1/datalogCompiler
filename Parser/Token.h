@@ -41,12 +41,25 @@ class Token {
 
         string toString() const {
             stringstream out;
-            // Outputs something like: (STRING,"10",5)
+            // Outputs something like: (STRING,"10",5):
+
+            // Currently outputs just the value
             string token = typeName(type);
-            out << "(" << token << "," << "\"" << value << "\"" << "," << line << ")";
+            // out << "(" << token << "," << "\"" << value << "\"" << "," << line << ")";
+            out << value;
             return out.str();
         }
 
+        string tokenData() const {
+            stringstream out;
+            // Outputs something like: (STRING,"10",5):
+
+            // Currently outputs just the value
+            string token = typeName(type);
+            out << "(" << token << "," << "\"" << value << "\"" << "," << line << ")";
+            // out << value;
+            return out.str();
+        }
 
         string typeName(TokenType type) const {
             // return the correct string for each TokenType value

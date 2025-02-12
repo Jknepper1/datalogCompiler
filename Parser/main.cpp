@@ -9,19 +9,20 @@
 using namespace std;
 
 int main(int argc, char* argv[]) {
-    string filename = argv[1];
+    string filename = "41test.txt";
     ifstream in(filename);
 
     stringstream buffer;
     buffer << in.rdbuf();
     string input = buffer.str(); 
     in.close();
+
     // NOTE: The << operator is an insertion operator, basically the strings in the file are inserted into the buffer
     
 
     Scanner s(input); 
     s.scan();
-    s.printTotal();
+    // s.printTotal();
     vector<Token> tokens = s.tokens;
 
     //NOTE: Build a try/catch block around this call
@@ -37,8 +38,9 @@ int main(int argc, char* argv[]) {
     }
         // Made by copilot as a temporary exception; no idea what this does
         catch (const invalid_argument& e) {
-        cerr << "Failure!\n" << e.what() << endl;
+        cout << "Failure!" << endl;
+        cout << "  " << e.what() << endl;
     }
 
-    return 0;
+    return 0; 
 }

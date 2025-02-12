@@ -26,8 +26,8 @@ class Predicate {
             if (i < parameters.size() - 1) {// Adds commas after all elements except last 
                 pred += ",";
             }
-            pred  += ")";
         }
+        pred  += ")";
 
         return pred;
     }

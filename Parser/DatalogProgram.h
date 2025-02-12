@@ -1,6 +1,7 @@
 #pragma once
 
 #include <vector>
+#include <set>
 #include <string>
 #include <iostream>
 #include "Predicate.h"
@@ -17,23 +18,20 @@ class DatalogProgram {
         vector<Predicate> Facts;
         vector<Predicate> Queries;
         vector<Rule> Rules;
-        vector<string> Domains;
+        set<string> Domains;
 
-        int sNum = 0;
-        int fNum = 0;
-        int qNum = 0;
-        int rNum = 0;
-        int dNum = 0;
+        // int sNum = 0;
+        // int fNum = 0;
+        // int qNum = 0;
+        // int rNum = 0;
     
     public:
         void addScheme(Predicate scheme) {
             Schemes.push_back(scheme);
-            sNum++;
         }
 
         void addFact(Predicate fact) {
             Facts.push_back(fact);
-            fNum++;
             
             for (Parameter f : fact.getParams()) { // Loops through each individual parameter in a single fact predicate
                 if (f.isStringLiteral()) { // Appens string literals ONLY to Domain list
@@ -44,48 +42,44 @@ class DatalogProgram {
 
         void addQuery(Predicate query) {
             Queries.push_back(query);
-            qNum++;
         }
 
         void addRule(Rule rule) { 
             Rules.push_back(rule);
-            rNum++;
         }
 
         // A Domain is a string literal inside facts
         void addDomain (string domain) {
-            Domains.push_back(domain);
-            dNum++;
+            Domains.insert(domain);
         }
 
     void toString () {
-        /* Print SUCCESS! Here but maybe not in this function. Perhaps in main?*/
         // Likey going to have a problem comparing int i to size_t .size()
         cout << "Success!" << endl;
         
-        cout << "Schemes(" << sNum << "):" << endl;
+        cout << "Schemes(" << Schemes.size() << "):" << endl;
         for(int i = 0; i < Schemes.size(); i++) {
-            cout << Schemes[i].toString() << endl;
+            cout << "  "<< Schemes[i].toString() << endl;
         }
 
-        cout << "Facts(" << fNum << "):" << endl;
+        cout << "Facts(" << Facts.size() << "):" << endl;
         for(int i = 0; i < Facts.size(); i++) {
-            cout << Facts[i].toString() << endl;
+            cout << "  " << Facts[i].toString() << "." << endl;
         }
 
-        cout << "Rules(" << qNum << "):" << endl;
+        cout << "Rules(" << Rules.size() << "):" << endl;
         for(int i = 0; i < Rules.size(); i++) {
-            cout << Rules[i].toString() << endl;
+            cout << "  " << Rules[i].toString() << endl;
         }
 
-        cout << "Queries(" << rNum << "):" << endl;
+        cout << "Queries(" << Queries.size() << "):" << endl;
         for(int i = 0; i < Queries.size(); i++) {
-            cout << Queries[i].toString() << endl;
+            cout << "  " << Queries[i].toString() << "?" << endl;
         }
 
-        cout << "Domain(" << dNum << "):" << endl;
-        for(int i = 0; i < Domains.size(); i++) {
-            cout << Domains[i] << endl;
+        cout << "Domain(" << Domains.size() << "):" << endl;
+        for(auto it = Domains.begin(); it != Domains.end(); it++) {
+            cout << "  " << *it << endl;
         }
     }
 
@@ -102,7 +96,7 @@ class DatalogProgram {
     vector<Rule> getRules() {
         return Rules;
     }
-    vector<string> getDomains() {
+    set<string> getDomains() {
         return Domains;
     }
 

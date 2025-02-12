@@ -34,6 +34,18 @@ class Scanner {
         }
 
         while (!input.empty()) {
+
+            while(isspace(input[0])) {
+                if (input[0] == '\n') {
+                    line++;
+                }
+                input = input.substr(1);
+            }
+
+            if (input[0] == '#') {
+                skipComment();
+                continue;
+            }
             
             Token t = scanToken();
             // cout << t.toString() << endl;
@@ -44,7 +56,7 @@ class Scanner {
                     line = line + lineDiff; // Places EOF at correct line
             
                     Token t = eof();
-                    cout << t.toString() << endl;
+                    // cout << t.toString() << endl;
                     tokens.push_back(t);
                 }   
 
@@ -73,7 +85,7 @@ class Scanner {
             // Clears whitespace
             if (input[0] == '\n') {
                 line++;
-            }
+            }   
 
             input = input.substr(1); // updates 0 index to clear white space
         }
@@ -125,8 +137,8 @@ class Scanner {
                 checkString();
                 break;
             case '#':               // NOTE: Project 2 should not parse comments. might just need to comment out this logic
-                checkComment();
-                break;
+                //checkComment();
+                //break;
             default:
                 if (current == '\0') {
                     return Token(END, "", line); // Handles end of string character without going out of bounds
@@ -242,7 +254,7 @@ class Scanner {
 
     }
 
-    void checkComment() {
+    void skipComment() {
         int i = 0;
 
         if (input[1] == '|') {
@@ -254,8 +266,8 @@ class Scanner {
             string com = input.substr(0, i + 2);
             input = input.substr(i + 2);
 
-            type = COMMENT;
-            value = com;
+            // type = COMMENT;
+            // value = com;
         }
 
         else {
@@ -270,10 +282,32 @@ class Scanner {
             // Advances the index to the correct position for scanning
             input = input.substr(i);
 
-            type = COMMENT;
-            value = com;
-        }
+            // type = COMMENT;
+            // value = com;
+        }  
 
     }
+    // void checkComment() {
+    //     int i = 0;
+    
+    //     if (input[1] == '|') {
+    //         // Block comment: Skips everything until '|#' is found
+    //         while (i < input.length() - 1 && !(input[i] == '|' && input[i + 1] == '#')) {
+    //             if (input[i] == '\n') line++; // Track newlines
+    //             i++;
+    //         }
+    //         if (i < input.length() - 1) i += 2; // Move past '|#' if found
+    //     } else {
+    //         // Line comment: Skip everything until newline
+    //         while (i < input.length() && input[i] != '\n') {
+    //             i++;
+    //         }
+    //         if (i < input.length()) i++; // Move past newline
+    //     }
+    
+    //     // Update input to remove the comment
+    //     input = input.substr(i);
+    // }
+    
 
 };
