@@ -16,12 +16,15 @@ class Tuple : public vector<string> {
      string toString(const Scheme& scheme) const {
         const Tuple& tuple = *this;
         stringstream out;
-        for (int i = 0; i < tuple.size(); i++) {
+        for (size_t i = 0; i < tuple.size(); i++) {
             out << scheme.at(i);
             out << "=";
             out << tuple.at(i);
             if (i + 1 != tuple.size()){ // Prevents comma from being the trailing character
                 out << ", ";
+            }
+            else {
+                out << endl; // Prints newline
             }
             
         }
