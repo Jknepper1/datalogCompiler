@@ -4,6 +4,8 @@
 #include "Scheme.h"
 #include "Tuple.h"
 #include "Relation.h"
+#include "Database.h"
+#include "Interpreter.h"
 
 using namespace std;
 

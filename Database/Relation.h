@@ -26,6 +26,7 @@ class Relation {
 
         string toString() const {
             stringstream out;
+            out << name << endl; // THIS LINE WILL NEED TO COME OUT, JUST FOR DEBUGGING
             for (Tuple tup : tuples) {
                 out << tup.toString(scheme);
             }
@@ -34,7 +35,7 @@ class Relation {
 
         Relation select(int index, const string& value) const {
             Relation result(name, scheme);
-            /* SUDO CODE FOR ABOVE
+            /* SUDO CODE FOR BELOW
                 for each tuple in the relation
                   if the value at the given index equals the given value
                     add the tuple to the result

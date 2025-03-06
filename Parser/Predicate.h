@@ -36,5 +36,9 @@ class Predicate {
         return parameters;
     }
 
+    string getName() {
+        return name;
+    }
+
 
 };
