@@ -15,8 +15,6 @@ int main() {
     
     Scheme scheme(names);
 
-    Relation relation("student", scheme);
-
     vector<string> values[]= {
         {"'42'", "'Ann'", "'CS'"},
         {"'32'", "'Bob'", "'CS'"},
@@ -24,19 +22,28 @@ int main() {
         {"'16'", "'Jim'", "'EE'"},
     };
 
+    
+
+    Database d;
+
+    d.addRelation("student", scheme);
+
     for (auto& value : values) {
         Tuple tuple(value);
-        cout << tuple.toString(scheme);
-        relation.addTuple(tuple);
+        // cout << tuple.toString(scheme);
+        // relation.addTuple(tuple);
+        d.getRelation("student").addTuple(tuple);
     }
+    d.toString();
 
-    cout << "relation:" << endl;
-    cout << relation.toString();
 
-    Relation result = relation.select(2, "'CS'");
+    // cout << "relation:" << endl;
+    // cout << relation.toString();
 
-    cout << "select Major='CS' result:" << endl;
-    cout << result.toString();
+    // Relation result = relation.select(2, "'CS'");
+
+    // cout << "select Major='CS' result:" << endl;
+    // cout << result.toString();
 
     return 0;
 }

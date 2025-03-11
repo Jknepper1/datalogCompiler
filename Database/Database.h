@@ -22,11 +22,32 @@ class Database {
             relations.push_back(newRelation);
         }
 
+        // void addTuple(string f, Tuple t){
+        //     for (Relation r : relations) {
+        //         if (r.getName() == f){ // another for loop?
+        //             r.getTuples().insert(t);
+        //         }
+        //     }
+        // }
+
         // Purely for Debugging for now, but might be part of the lab
-        string toString() {
-            stringstream out;
-            for (Relation r : relations) {
-                out << r.toString();
+        void toString() {
+            for (Relation r : relations){
+                cout << r.toString();
             }
         }
+
+        vector<Relation> getRelations() {
+            return relations;
+        }
+
+        Relation& getRelation(const string& name) {
+            for (Relation& r : relations) {
+                if (r.getName() == name) {
+                    return r;
+                }
+            }
+            // throw runtime_error("Relation not found");
+        }
+        
 };

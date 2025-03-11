@@ -48,4 +48,69 @@ class Relation {
             return result;
         }
 
+        Relation select2(int index1, int index2) const {
+            Relation result(name,scheme);
+
+            for (const Tuple& tup : tuples) {
+                if (tup.at(index1) == tup.at(index2)) {
+                    result.tuples.insert(tup);
+                }
+            }
+
+            return result;
+        }
+
+
+        Relation project(vector<int> list) {
+            // Creates a new scheme based on list of indexes passed in
+            vector<string> attributes;
+            for (int index : list) {
+                attributes.push_back(scheme.at(index));
+            }
+            Scheme newScheme(attributes);
+
+            // Create new relation result
+            Relation result(name, scheme);
+
+            // Iterate through tuples and create new tuples with selected attributes
+            for (const Tuple& tup : tuples) {
+                vector<string> fill; // random filler variable to initialize newTuple with
+
+                Tuple newTuple(fill);
+
+                for (int index : list) {
+                    newTuple.push_back(tup.at(index));
+                }
+
+                result.tuples.insert(newTuple);
+            }
+
+            return result;
+        }
+
+        Relation rename(vector<string> newNames) const {
+            if (newNames.size() != scheme.size()){
+                cout << "Mismatched attribute count." << endl;
+            }
+
+            // Make a new scheme based on the rename list
+            Scheme newScheme(newNames);
+
+            // Make a new relation based on new attributes but append original tuples
+            Relation result(name, newScheme);
+            result.getTuples() = tuples;
+
+            return result;
+
+        }
+
+
+        string getName() {
+            return name;
+        }
+
+        set<Tuple> getTuples() {
+            return tuples;
+        }
+
 };
