@@ -40,9 +40,9 @@ class Relation {
                   if the value at the given index equals the given value
                     add the tuple to the result
             */
-            for (Tuple tup : tuples) {
+            for (const Tuple& tup : tuples) {
                 if (tup.at(index) == value) {
-                    result.tuples.insert(tup); // This probably doesn't work
+                    result.tuples.insert(tup);
                 }            
             }
             return result;
@@ -53,7 +53,7 @@ class Relation {
 
             for (const Tuple& tup : tuples) {
                 if (tup.at(index1) == tup.at(index2)) {
-                    result.tuples.insert(tup);
+                    result.tuples.insert(tup); // POTENTIAL PROBLEM
                 }
             }
 
@@ -63,6 +63,7 @@ class Relation {
 
         Relation project(vector<int> list) {
             // Creates a new scheme based on list of indexes passed in
+            // MAY NEED TO ADD IF STATEMENT TO PREVENT DUPLICATES
             vector<string> attributes;
             for (int index : list) {
                 attributes.push_back(scheme.at(index));
@@ -70,7 +71,7 @@ class Relation {
             Scheme newScheme(attributes);
 
             // Create new relation result
-            Relation result(name, scheme);
+            Relation result(name, newScheme);
 
             // Iterate through tuples and create new tuples with selected attributes
             for (const Tuple& tup : tuples) {
@@ -92,13 +93,18 @@ class Relation {
             if (newNames.size() != scheme.size()){
                 cout << "Mismatched attribute count." << endl;
             }
+            // if (newNames.size() == 0) {
+            //     return *this;
+            // }
 
             // Make a new scheme based on the rename list
             Scheme newScheme(newNames);
 
             // Make a new relation based on new attributes but append original tuples
             Relation result(name, newScheme);
-            result.getTuples() = tuples;
+            for (const Tuple& tup : tuples) {
+                result.tuples.insert(tup);  // Insert each tuple into the result relation
+            }
 
             return result;
 
@@ -111,6 +117,10 @@ class Relation {
 
         set<Tuple> getTuples() {
             return tuples;
+        }
+
+        Scheme getScheme() {
+            return scheme;
         }
 
 };

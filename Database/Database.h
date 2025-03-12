@@ -37,7 +37,7 @@ class Database {
             }
         }
 
-        vector<Relation> getRelations() {
+        vector<Relation>& getRelations() {
             return relations;
         }
 

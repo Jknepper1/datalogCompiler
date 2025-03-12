@@ -1,6 +1,11 @@
 #include <vector>
 #include <string>
 #include <iostream>
+#include <fstream>
+#include "../Parser/Parser.h"
+#include "../Parser/DatalogProgram.h"
+#include "../Parser/Scanner.h"
+#include "../Parser/Token.h"
 #include "Scheme.h"
 #include "Tuple.h"
 #include "Relation.h"
@@ -10,32 +15,67 @@
 using namespace std;
 
 
-int main() {
-    vector<string> names = {"ID", "Name", "Major"};
+int main(int argc, char* argv[]) {
+
+    string filename = "testText.txt";
+    ifstream in(filename);
+
+    stringstream buffer;
+    buffer << in.rdbuf();
+    string input = buffer.str(); 
+    in.close();
+
+    // NOTE: The << operator is an insertion operator, basically the strings in the file are inserted into the buffer
     
-    Scheme scheme(names);
 
-    vector<string> values[]= {
-        {"'42'", "'Ann'", "'CS'"},
-        {"'32'", "'Bob'", "'CS'"},
-        {"'64'", "'Ned'", "'EE'"},
-        {"'16'", "'Jim'", "'EE'"},
-    };
-
+    Scanner s(input); 
+    s.scan();
+    // s.printTotal();
+    vector<Token> tokens = s.tokens;
+    Parser p(tokens);
     
-
-    Database d;
-
-    d.addRelation("student", scheme);
-
-    for (auto& value : values) {
-        Tuple tuple(value);
-        // cout << tuple.toString(scheme);
-        // relation.addTuple(tuple);
-        d.getRelation("student").addTuple(tuple);
+    try {
+       while (p.tokens.size() > 0) {
+            p.datalogProgram();
+       }
+       // Print the program to string
+        p.d.toString(); // This is garbage syntax and probably not very secure...
+    
     }
-    d.toString();
+        // Made by copilot as a temporary exception; no idea what this does
+    catch (const invalid_argument& e) {
+        cout << "Failure!" << endl;
+        cout << "  " << e.what() << endl;
+    }
 
+    DatalogProgram datalog = p.d;
+    Database data;
+    Interpreter brain(data, datalog);
+
+    brain.evaluate();
+    return 0;
+}
+
+// vector<string> names = {"ID", "Name", "Major"};
+    
+    // Scheme scheme(names);
+
+    // vector<string> values[]= {
+    //     {"'42'", "'Ann'", "'CS'"},
+    //     {"'32'", "'Bob'", "'CS'"},
+    //     {"'64'", "'Ned'", "'EE'"},
+    //     {"'16'", "'Jim'", "'EE'"},
+    // };
+
+
+    // data.addRelation("student", scheme);
+
+    // for (auto& value : values) {
+    //     Tuple tuple(value);
+    //     // cout << tuple.toString(scheme);
+    //     // relation.addTuple(tuple);
+    //     d.getRelation("student").addTuple(tuple);
+    // }
 
     // cout << "relation:" << endl;
     // cout << relation.toString();
@@ -44,6 +84,3 @@ int main() {
 
     // cout << "select Major='CS' result:" << endl;
     // cout << result.toString();
-
-    return 0;
-}
