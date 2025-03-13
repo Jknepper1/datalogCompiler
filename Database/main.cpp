@@ -2,10 +2,10 @@
 #include <string>
 #include <iostream>
 #include <fstream>
-#include "../Parser/Parser.h"
-#include "../Parser/DatalogProgram.h"
-#include "../Parser/Scanner.h"
-#include "../Parser/Token.h"
+#include "Parser.h"
+#include "DatalogProgram.h"
+#include "Scanner.h"
+#include "Token.h"
 #include "Scheme.h"
 #include "Tuple.h"
 #include "Relation.h"
@@ -39,7 +39,7 @@ int main(int argc, char* argv[]) {
             p.datalogProgram();
        }
        // Print the program to string
-        p.d.toString(); // This is garbage syntax and probably not very secure...
+        //p.d.toString(); // This is garbage syntax and probably not very secure...
     
     }
         // Made by copilot as a temporary exception; no idea what this does

@@ -3,7 +3,7 @@
 #include <set>
 #include <unordered_map>
 #include "Database.h"
-#include "../Parser/DatalogProgram.h"
+#include "DatalogProgram.h"
 
 #pragma once
 
