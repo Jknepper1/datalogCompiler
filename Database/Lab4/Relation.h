@@ -21,6 +21,8 @@ class Relation {
         Relation (const string& name, const Scheme& scheme) 
         : name (name), scheme(scheme) { }
 
+        Relation() { }
+
         void addTuple(const Tuple& tuple) {
             tuples.insert(tuple);
         }
@@ -119,6 +121,7 @@ class Relation {
             // BC
             // 34 
             // These wouldn't join because column B's tuples don't have matching values
+            bool commonColumn = false;
             for (unsigned leftIndex = 0; leftIndex < leftScheme.size(); leftIndex++) {
                 const string& leftName = leftScheme.at(leftIndex);
                 const string& leftValue = leftTuple.at(leftIndex);
@@ -127,18 +130,29 @@ class Relation {
                     const string& rightName = rightScheme.at(rightIndex);
                     const string& rightValue = rightTuple.at(rightIndex);
                     if (rightName == leftName) {
+                        commonColumn = true;
                         if (rightValue != leftValue) {
                             return false; 
-                        } // this conditional doesnt work
-                        // I might need to go back to checking for tuple values first
-                        // A natural join shouldn't work when schemes dont have a matching column like AB and XY
+                        }
                     }
                     cout << "right name: " << rightName << " value: " << rightValue << endl;
                 }
             }
+            return commonColumn;
+        }
 
+        Relation join(const Relation& right) {
+            const Relation& left = *this;
+            Relation result; // Had to add a default constructor for this!
+            for (Tuple leftTuple : left.tuples) { // Does this need to be an & reference to change actual tuple?
+                cout << "left tuple: " << leftTuple.toString(left.scheme) << endl;
+                for (Tuple rightTuple : right.tuples) {
+                    cout << "right tuple: " << rightTuple.toString(right.scheme) << endl;
+                }
+            }
             
-            return true;
+            
+            return result;
         }
 
         string getName() {

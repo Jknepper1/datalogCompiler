@@ -24,7 +24,7 @@ class Tuple : public vector<string> {
                 out << ", ";
             }
             else {
-                out << endl; // Prints newline
+                // out << endl; // Prints newline
             }
             
         }
