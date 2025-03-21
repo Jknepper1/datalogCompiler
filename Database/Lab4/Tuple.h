@@ -12,6 +12,7 @@ class Tuple : public vector<string> {
     public:
    
      Tuple(vector<string> values) : vector<string>(values) { }
+     Tuple() { }
 
      string toString(const Scheme& scheme) const {
         const Tuple& tuple = *this;

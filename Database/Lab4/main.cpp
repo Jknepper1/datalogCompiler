@@ -1,4 +1,5 @@
 #include <iostream>
+#include <sstream>
 #include "Relation.h"
 #include "Scheme.h"
 #include "Tuple.h"
@@ -67,6 +68,7 @@ int main() {
     for (auto& value : courseValues)
         courseRelation.addTuple(Tuple(value));
 
-    studentRelation.join(courseRelation);
+    Relation fresh = studentRelation.join(courseRelation);
+    fresh.toString(); // Doesn't work??
     
 }

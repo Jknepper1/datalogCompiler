@@ -143,14 +143,48 @@ class Relation {
 
         Relation join(const Relation& right) {
             const Relation& left = *this;
-            Relation result; // Had to add a default constructor for this!
+            // Make a new scheme with right and this combined
+            set<string> seenScheme; // Used to prevent duplicates in Scheme
+            set<string> seenVal; // Used to prevent duplicates in Tuple
+            Scheme s;
+            for (string r : right.scheme) {
+                s.push_back(r);
+                seenScheme.insert(r);
+            }
+            for (string l : left.scheme) {
+                if (seenScheme.count(l) == 0) {
+                    s.push_back(l);
+                    seenVal.insert(l);
+                }
+            }
+            // insert that new scheme into the result relation
+            // NOTE: I have no idea where 'name' even comes from or why it works . . .
+            Relation result(name, s); // Had to add a default constructor for this!
             for (Tuple leftTuple : left.tuples) { // Does this need to be an & reference to change actual tuple?
                 cout << "left tuple: " << leftTuple.toString(left.scheme) << endl;
                 for (Tuple rightTuple : right.tuples) {
                     cout << "right tuple: " << rightTuple.toString(right.scheme) << endl;
+                    // if left and right are joinable 
+                    if (joinable(left.scheme, right.scheme, leftTuple, rightTuple)) {
+                        // combine left and right to make tuple t
+                        Tuple t; // Added another default constructor here
+                        for (string tup : leftTuple) {
+                            t.push_back(tup);
+                            seenVal.insert(tup);
+                        }
+                        for (string tup : rightTuple) {
+                            if (seenVal.count(tup) == 0) {
+                                t.push_back(tup);
+                                seenVal.insert(tup);
+                            }
+                        }
+                        // add tuple t to result
+                        result.addTuple(t);
+                        // result.toString();
+                    }
+                    
                 }
             }
-            
             
             return result;
         }
