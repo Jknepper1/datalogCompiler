@@ -125,7 +125,7 @@ class Relation {
             for (unsigned leftIndex = 0; leftIndex < leftScheme.size(); leftIndex++) {
                 const string& leftName = leftScheme.at(leftIndex);
                 const string& leftValue = leftTuple.at(leftIndex);
-                cout << "left name: " << leftName << " value: " << leftValue << endl;
+                //cout << "left name: " << leftName << " value: " << leftValue << endl;
                 for (unsigned rightIndex = 0; rightIndex < rightScheme.size(); rightIndex++) {
                     const string& rightName = rightScheme.at(rightIndex);
                     const string& rightValue = rightTuple.at(rightIndex);
@@ -135,7 +135,7 @@ class Relation {
                             return false; 
                         }
                     }
-                    cout << "right name: " << rightName << " value: " << rightValue << endl;
+                    //cout << "right name: " << rightName << " value: " << rightValue << endl;
                 }
             }
             return commonColumn;
@@ -161,9 +161,9 @@ class Relation {
             // NOTE: I have no idea where 'name' even comes from or why it works . . .
             Relation result(name, s); // Had to add a default constructor for this!
             for (Tuple leftTuple : left.tuples) { // Does this need to be an & reference to change actual tuple?
-                cout << "left tuple: " << leftTuple.toString(left.scheme) << endl;
+                // cout << "left tuple: " << leftTuple.toString(left.scheme) << endl;
                 for (Tuple rightTuple : right.tuples) {
-                    cout << "right tuple: " << rightTuple.toString(right.scheme) << endl;
+                    //cout << "right tuple: " << rightTuple.toString(right.scheme) << endl;
                     // if left and right are joinable 
                     if (joinable(left.scheme, right.scheme, leftTuple, rightTuple)) {
                         // combine left and right to make tuple t
@@ -180,7 +180,8 @@ class Relation {
                         }
                         // add tuple t to result
                         result.addTuple(t);
-                        // result.toString();
+                        // Print for debugging: LOOKS LIKE JOIN WORKS ON TEST DATA BUT TUPLE IS OUT OF ORDER
+                        cout << result.toString() << endl;
                     }
                     
                 }

@@ -167,7 +167,7 @@ class Relation {
                     
                     // if left and right are joinable 
                     if (joinable(left.scheme, right.scheme, leftTuple, rightTuple)) {
-                        
+
                         // combine left and right to make tuple t
                         Tuple t; // Added another default constructor here
                         for (string tup : leftTuple) {
@@ -182,6 +182,7 @@ class Relation {
                         }
                         // add tuple t to result
                         result.addTuple(t);
+                        cout << result.toString();
                     }
                     
                 }
