@@ -50,7 +50,7 @@ int main() {
 
     vector<string> studentValues[] = {
         {"'42'", "'Ann'", "'CS'"},
-        {"'64'", "'Ned'", "'EE'"},
+        {"'32'", "'Ned'", "'EE'"},
     };
 
     for (auto& value : studentValues)
@@ -68,7 +68,7 @@ int main() {
     for (auto& value : courseValues)
         courseRelation.addTuple(Tuple(value));
 
-    Relation fresh = studentRelation.join(courseRelation);
-    fresh.toString(); // Doesn't work??
+    studentRelation.join(courseRelation);
+    // Doesn't work??
     
 }

@@ -31,7 +31,7 @@ class Relation {
             stringstream out;
             out << name << endl; // THIS LINE WILL NEED TO COME OUT, JUST FOR DEBUGGING
             for (Tuple tup : tuples) {
-                out << tup.toString(scheme);
+                out << tup.toString(scheme) << endl;
             }
             return out.str();
         }
@@ -122,9 +122,13 @@ class Relation {
             // 34 
             // These wouldn't join because column B's tuples don't have matching values
             bool commonColumn = false;
-            for (unsigned leftIndex = 0; leftIndex < leftScheme.size(); leftIndex++) {
+            // int count = 0;
+            int leftSize = leftScheme.size();
+
+            for (unsigned leftIndex = 0; leftIndex < leftSize; leftIndex++) {
                 const string& leftName = leftScheme.at(leftIndex);
                 const string& leftValue = leftTuple.at(leftIndex);
+
                 //cout << "left name: " << leftName << " value: " << leftValue << endl;
                 for (unsigned rightIndex = 0; rightIndex < rightScheme.size(); rightIndex++) {
                     const string& rightName = rightScheme.at(rightIndex);
@@ -137,24 +141,29 @@ class Relation {
                     }
                     //cout << "right name: " << rightName << " value: " << rightValue << endl;
                 }
+
+                // count++;
+            
             }
-            return commonColumn;
+            // if (count == leftSize) {
+            //     return true;
+            // }
+            return true;
         }
 
         Relation join(const Relation& right) {
             const Relation& left = *this;
             // Make a new scheme with right and this combined
             set<string> seenScheme; // Used to prevent duplicates in Scheme
-            set<string> seenVal; // Used to prevent duplicates in Tuple
             Scheme s;
-            for (string r : right.scheme) {
-                s.push_back(r);
-                seenScheme.insert(r);
-            }
             for (string l : left.scheme) {
-                if (seenScheme.count(l) == 0) {
-                    s.push_back(l);
-                    seenVal.insert(l);
+                s.push_back(l);
+                seenScheme.insert(l);
+            }
+            for (string r : right.scheme) {
+                if (seenScheme.count(r) == 0) {
+                    s.push_back(r);
+                    seenScheme.insert(r);
                 }
             }
             // insert that new scheme into the result relation
@@ -166,6 +175,7 @@ class Relation {
                     //cout << "right tuple: " << rightTuple.toString(right.scheme) << endl;
                     // if left and right are joinable 
                     if (joinable(left.scheme, right.scheme, leftTuple, rightTuple)) {
+                        set<string> seenVal; // Used to prevent duplicates in Tuple
                         // combine left and right to make tuple t
                         Tuple t; // Added another default constructor here
                         for (string tup : leftTuple) {
@@ -180,13 +190,12 @@ class Relation {
                         }
                         // add tuple t to result
                         result.addTuple(t);
-                        // Print for debugging: LOOKS LIKE JOIN WORKS ON TEST DATA BUT TUPLE IS OUT OF ORDER
-                        cout << result.toString() << endl;
                     }
                     
                 }
             }
-            
+            // DEBUGGING
+            cout << result.toString() << endl;
             return result;
         }
 
