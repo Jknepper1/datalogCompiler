@@ -9,7 +9,7 @@
 using namespace std;
 
 int main(int argc, char* argv[]) {
-    string filename = "41test.txt";
+    string filename = "100test.txt";
     ifstream in(filename);
 
     stringstream buffer;

@@ -65,6 +65,7 @@ class Relation {
 
 
         Relation project(vector<int> list) {
+            // HOW COULD I MAKE THIS CAPABLE OF REORDERING THE COLUMNS FOR RULES STEP 3?
             // Creates a new scheme based on list of indexes passed in
             // MAY NEED TO ADD IF STATEMENT TO PREVENT DUPLICATES
             vector<string> attributes;
@@ -77,10 +78,8 @@ class Relation {
             Relation result(name, newScheme);
 
             // Iterate through tuples and create new tuples with selected attributes
-            for (const Tuple& tup : tuples) {
-                vector<string> fill; // random filler variable to initialize newTuple with
-
-                Tuple newTuple(fill);
+            for (const Tuple& tup : tuples) { // random filler variable to initialize newTuple with
+                Tuple newTuple;
 
                 for (int index : list) {
                     newTuple.push_back(tup.at(index));

@@ -35,6 +35,14 @@ class Rule {
         return r;
     }
 
+    vector<Predicate> getBody() {
+        return body;
+    }
+    
+    Predicate getHead() {
+        return head;
+    }
+
     // string toString() {
     //     return r;
     // }

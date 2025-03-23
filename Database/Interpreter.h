@@ -40,7 +40,7 @@ class Interpreter {
                 vector<string> values;
                 vector<Parameter> param = fact.getParams();
 
-                // Fill Values with parameters from fact
+                // Fill values with parameters from fact
                 for (Parameter f : param) {
                     string value = f.toString();
                     values.push_back(value);
@@ -62,7 +62,36 @@ class Interpreter {
             //     cout << r.toString();
             // }
 
-            // QUERIES DOES THIS NEED TO BE DONE ON A COPY??
+
+            // RULES
+            // FOR PROJECT TO WORK I NEED TO MAKE SURE AN ORDERED LIST IS PASSED INTO IT
+            // I MIGHT BE ABLE TO ACCOMPLISH THIS BY USING A SET AS THE PROJETLIST DATA TYPE 
+            // THEN CONVERTING THAT SET INTO A VECTOR SO IT MATCHES THE RIGHT TYPE FOR SCHEME?
+            for (Rule rule : datalog.getRules()) {
+                vector<Predicate> rightHand = rule.getBody();
+                vector<Relation> relations;
+                // COPIED FROM SCHEME EVALUATION ABOVE
+                // STEP 1 of Rule Evaluation
+                for (Predicate p : rightHand) {
+                    vector<string> attributes;
+                    vector<Parameter> param = p.getParams();
+                    
+                    // Extracts the values of each parameter of the scheme to be inserted into the database
+                    for (Parameter p : param) {
+                        string val = p.toString();
+                        attributes.push_back(val);
+                    }
+                    // Creates a relation from 
+                    Relation temp(p.getName(), attributes);
+                    relations.push_back(temp);
+                    // How do I get the facts into the relation?? I can use the scheme logic to build the relation scheme, 
+                    // but what about the values?? Do I just use the facts logic?
+                }
+                // Step 2 of Rule Evaluation
+
+            }
+
+            // QUERIES - DOES THIS NEED TO BE DONE ON A COPY??
             for (Predicate query : datalog.getQueries()) {
                 for (Relation r : database.getRelations()) {
                     if (r.getName() == query.getName()) {
@@ -108,7 +137,7 @@ class Interpreter {
                                 }  
                             }
                         }     
-                        // Use project to keep only the oclumns from the relation that correspond to the position of the variables in the query
+                        // Use project to keep only the columns from the relation that correspond to the position of the variables in the query
                         // Make sure each variable name only appears once in the resulting relatioin
                         //cout << "Project list size: " << projectList.size() << endl;
                         r = r.project(projectList);
