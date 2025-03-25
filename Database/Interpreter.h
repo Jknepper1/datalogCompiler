@@ -179,7 +179,7 @@ class Interpreter {
                 result = result.project(projectList); // SEcond rule has two Gs G and g
 
                 // Step 4 of Eval
-                database.getRelation();
+                
 
 
             }
