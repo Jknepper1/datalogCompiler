@@ -1,11 +1,11 @@
+#pragma once
+
 #include <vector>
 #include <string>
 #include <iostream>
 #include <set>
 #include "Scheme.h"
 #include "Tuple.h"
-
-#pragma once
 
 using namespace std;
 
@@ -196,6 +196,22 @@ class Relation {
             // DEBUGGING
             cout << result.toString() << endl;
             return result;
+        }
+
+        void uni(Relation other) {
+            if (this->scheme != other.getScheme()) {
+                cout << "Schemes do NOT exactly match" << endl;
+            }
+
+            // Add tuples from other relation
+            for (Tuple tuple : other.getTuples()) {
+                // for (Tuple t : this->tuples) {
+                //     // I might need to check for duplicates here
+                // }
+                if (tuples.find(tuple) == tuples.end()) { // Only adds tuples if not found in tuples
+                    this->addTuple(tuple);
+                }
+            }
         }
 
         string getName() {
