@@ -2,6 +2,7 @@
 #include <string>
 #include <iostream>
 #include <fstream>
+
 #include "Parser.h"
 #include "DatalogProgram.h"
 #include "Scanner.h"
