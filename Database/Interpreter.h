@@ -19,6 +19,128 @@ class Interpreter {
     Interpreter(const Database &database, const DatalogProgram &datalog)
         : database(database), datalog(datalog) {}
 
+    
+    void evaluateRules() {
+        vector<Relation> tempRelations;
+        int ruleEvals = 0;
+        int tupleBefore = 0;
+        int iterations = 0;
+        bool addedNewTuples = true;
+
+        // Count tuple amounts before rule evals
+        while(addedNewTuples) {
+            addedNewTuples = false;
+
+            for (Rule rule : datalog.getRules()) {
+                tempRelations.clear(); // Wipes the list before new temps are appended
+
+                // Step 1 of Eval
+                for (Predicate p : rule.getBody()) {
+                    Relation r = database.getRelation(p.getName());
+                    vector<Parameter> params = p.getParams();
+                    vector<int> projectList;
+                    unordered_map<string, int> seenVars;
+                    vector<string> renameList;
+
+                    for (size_t i = 0; i < params.size(); i++) {
+                        Parameter param = params[i];
+                        if (param.isStringLiteral()) {
+                            r = r.select(i, param.toString());
+                        } else {
+                            string varName = param.toString();
+                            if (seenVars.count(varName)) {
+                                r = r.select2(seenVars[varName], i);
+                            } else {
+                                seenVars[varName] = i;
+                                projectList.push_back(i);
+                                renameList.push_back(varName);
+                            }
+                        }
+                    }
+                    r = r.project(projectList);
+                    r = r.rename(renameList);
+                    tempRelations.push_back(r);
+                }
+
+                // Step 2 of eval
+
+                // Set result to first relation; iterate through rest of relations appending joins to result
+                Relation result = tempRelations[0];
+                if (tempRelations.size() > 1) {
+                    for (size_t i = 1; i < tempRelations.size(); i++) {
+                        result = result.join(tempRelations[i]);
+                    }
+                }
+                // cout << result.toString();
+
+                // Step 3 of eval
+                vector<int> projectList;
+                vector<string> headAttributes;
+
+                // Get all attributes from head pred into comparison list
+                for (Parameter p : rule.getHead().getParams()) {
+                    headAttributes.push_back(p.toString());
+                }
+
+                // Searches for each head attribute in the relation's scheme and returns it's index to
+                // be projected with
+                for (string attr : headAttributes) {
+                    for (size_t i = 0; i < result.getScheme().size(); i++) {
+                        if (result.getScheme()[i] == attr) {
+                            projectList.push_back(i);
+                        }
+                    }
+                }
+
+                result = result.project(projectList);
+                // cout << result.toString();
+
+                // Step 4 of Eval
+                vector<string> renameAttributes;
+                for (Relation r : database.getRelations()) {
+
+                    if (r.getName() == rule.getHead().getName()) {
+                        // cout << "Found it!" << endl;
+                        for (string s : r.getScheme()) {
+                            renameAttributes.push_back(s);
+                        }
+                    }
+                }
+
+                // Create a new relation with the renamed scheme
+                result = result.rename(renameAttributes);
+
+                // Step 5 of Eval
+
+                Relation& target = database.getRelation(rule.getHead().getName());
+
+                size_t tupleBefore = target.getTuples().size();
+                target.uni(result);
+                size_t tupleAfter = target.getTuples().size();
+
+                if (tupleBefore < tupleAfter) {
+                    addedNewTuples = true;
+
+                }
+                
+            }
+            iterations++;
+        }
+
+        // String Printing
+        for (Rule r : datalog.getRules()){
+            cout << r.toString() << endl;
+            Relation rel = database.getRelation(r.getHead().getName());
+            for (Tuple t : rel.getTuples()){    
+                for (size_t i = 0; i < t.size(); i++) {
+                    cout << " " << rel.getScheme().at(i) << "=" << t.at(i);
+                }
+                cout << endl;
+            }
+        }
+        cout << endl << "Schemes populated after " << iterations << " passes through the Rules" << endl << endl;
+    }
+
     void evaluate() {
 
         // For each scheme in the Datalog Program
@@ -52,8 +174,7 @@ class Interpreter {
             Tuple tup(values);
 
             // Find the relation the fact belongs to and then add it as a tuple
-            for (Relation &r :
-                 database.getRelations()) { // & points to actual database instead of just a copy
+            for (Relation &r : database.getRelations()) { // & points to actual database instead of just a copy
                 if (fact.getName() == r.getName()) {
                     r.addTuple(tup);
                 }
@@ -65,146 +186,22 @@ class Interpreter {
         //     cout << r.toString();
         // }
 
-        // TA notes:
-        // Ensure matching lowercase letters do in fact match the uppercase N
-        // So a RENAME may need to happen to make all parts of the scheme uppercase and matchable
-        //
-
         // RULES
-        // FOR PROJECT TO WORK I NEED TO MAKE SURE AN ORDERED LIST IS PASSED INTO IT
-        // I MIGHT BE ABLE TO ACCOMPLISH THIS BY USING A SET AS THE PROJETLIST DATA TYPE
-        // THEN CONVERTING THAT SET INTO A VECTOR SO IT MATCHES THE RIGHT TYPE FOR SCHEME?
-        vector<Relation> tempRelations;
-        for (Rule rule : datalog.getRules()) {
-            tempRelations.clear(); // Wipes the list before new temps are appended
+        cout << "Rule Evaluation" << endl;
+        evaluateRules();
+        
 
-            // Step 1 of Eval
-
-            for (Predicate p : rule.getBody()) {
-                Relation r = database.getRelation(p.getName()); // & reference?
-                vector<Parameter> params = p.getParams();
-                vector<int> projectList;
-                unordered_map<string, int> seenVars;
-                vector<string> renameList;
-
-                for (size_t i = 0; i < params.size(); i++) {
-                    Parameter param = params[i];
-                    if (param.isStringLiteral()) {
-                        r = r.select(i, param.toString());
-                    } else {
-                        string varName = param.toString();
-                        if (seenVars.count(varName)) {
-                            r = r.select2(seenVars[varName], i);
-                        } else {
-                            seenVars[varName] = i;
-                            projectList.push_back(i);
-                            renameList.push_back(varName);
-                        }
-                    }
-                }
-                r = r.project(projectList);
-                r = r.rename(renameList);
-                tempRelations.push_back(r);
-            }
-
-            // Step 2 of eval
-
-            // Set result to first relation; iterate through rest of relations appending joins to
-            // result
-            Relation result = tempRelations[0];
-            if (tempRelations.size() > 1) {
-                for (size_t i = 1; i < tempRelations.size(); i++) {
-                    result = result.join(tempRelations[i]);
-                }
-            }
-            // cout << result.toString();
-
-            // Step 3 of eval
-            vector<int> projectList;
-            vector<string> headAttributes;
-
-            // Get all attributes from head pred into comparison list
-            for (Parameter p : rule.getHead().getParams()) {
-                headAttributes.push_back(p.toString());
-            }
-
-            // Searches for each head attribute in the relation's scheme and returns it's index to
-            // be projected with
-            for (string attr : headAttributes) {
-                for (size_t i = 0; i < result.getScheme().size(); i++) {
-                    if (result.getScheme()[i] == attr) {
-                        projectList.push_back(i);
-                    }
-                }
-            }
-
-            result = result.project(projectList);
-            // cout << result.toString();
-
-            // Step 4 of Eval
-            // *********** BROKEN ************
-            // Step 4: Rename the relation to make it union-compatible
-            // vector<string> headAttr; // Attributes in the head of the rule
-            // vector<string> newScheme;      // New scheme after renaming
-
-            // // Get all attributes from the head predicate into the comparison list
-            // for (Parameter p : rule.getHead().getParams()) {
-            //     headAttr.push_back(p.toString());
-            // }
-
-            // // Map of old attribute names to the corresponding new attribute names
-            // unordered_map<string, string> renameMap;
-
-            // // Create a rename mapping from the result scheme to the head attributes
-            // for (size_t i = 0; i < result.getScheme().size(); i++) {
-            //     string resultAttr = result.getScheme()[i];
-            //     if (i < headAttr.size()) {
-            //         renameMap[resultAttr] = headAttr[i];  // Map old attribute to new attribute
-            //     } else {
-            //         // Handle cases where the result has extra attributes that are not in the
-            //         head
-            //         // (for example, after a join operation)
-            //         renameMap[resultAttr] = resultAttr; // Keep the same name if it's not in the
-            //         head
-            //     }
-            // }
-
-            // // Now, apply the renaming by creating a new scheme and renaming the result relation
-            // vector<string> renamedScheme;
-            // for (const string& attr : result.getScheme()) {
-            //     renamedScheme.push_back(renameMap[attr]);
-            // }
-            vector<string> renameAttributes;
-            for (Relation r : database.getRelations()) {
-
-                if (r.getName() == rule.getHead().getName()) {
-                    cout << "Found it!" << endl;
-                    for (string s : r.getScheme()) {
-                        renameAttributes.push_back(s);
-                    }
-                    // for (string s : renameAttributes) {
-                    //     cout << s << endl;
-                    // } FOR CHECKING RENAME ATTRIBUTE VALUES
-                }
-            }
-
-            // Create a new relation with the renamed scheme
-            result = result.rename(renameAttributes);
-            // cout << "Union Ready" << endl << result.toString(); // NOT UPDATING SCHEME
-
-            // Step 5 of Eval (this seems to work)
-            database.getRelation(rule.getHead().getName()).uni(result); // This needs to adjust the relations in
-            // the database. It doesn't seem to quite do that. . .
-
-            database.getRelations().push_back(result); // this gets the rule evaluated databases in the database kind of...
-        }
         // Relation population proof
-        cout << "Database after Rule Evaluation" << endl;
-        for (Relation r : database.getRelations()) {
-            cout << r.toString();
-        }
+        // cout << endl;
+        // cout << endl;
+        // cout << endl;
+        // cout << "Database after Rule Evaluation" << endl;
+        // for (Relation r : database.getRelations()) {
+        //     cout << r.toString();
+        // }
 
         // QUERIES - DOES THIS NEED TO BE DONE ON A COPY??
+        cout << "Query Evaluation" << endl;
         for (Predicate query : datalog.getQueries()) {
             for (Relation r : database.getRelations()) {
                 if (r.getName() == query.getName()) {

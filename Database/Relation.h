@@ -194,7 +194,7 @@ class Relation {
                 }
             }
             // DEBUGGING
-            cout << result.toString() << endl;
+            // cout << result.toString() << endl;
             return result;
         }
 
