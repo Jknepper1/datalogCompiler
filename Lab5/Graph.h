@@ -1,6 +1,7 @@
 #pragma once
 
 #include <map>
+#include <sstream>
 
 #include "Node.h"
 
@@ -20,6 +21,19 @@ class Graph {
 
     void addEdge(int fromNodeID, int toNodeID) {
         nodes[fromNodeID].addEdge(toNodeID);
+    }
+
+    string toString() {
+        stringstream out;
+
+        for (auto& pair: nodes) {
+            int nodeID = pair.first;
+            Node node = pair.second;
+
+            out << "R" << nodeID << ":" << node.toString() << endl;
+          }
+
+        return out.str();
     }
 
 };
