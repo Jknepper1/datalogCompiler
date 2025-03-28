@@ -4,6 +4,8 @@
 #include <string>
 #include <iostream>
 #include <set>
+#include <algorithm>
+
 #include "Scheme.h"
 #include "Tuple.h"
 
@@ -82,7 +84,11 @@ class Relation {
                 Tuple newTuple;
 
                 for (int index : list) {
-                    newTuple.push_back(tup.at(index));
+                    if (index < 0 || index >= tup.size()) {
+                        cout << "Error: Tuple index " << index << " is out of range for tuple of size " << tup.size() << endl;
+                    } else {
+                        newTuple.push_back(tup.at(index));
+                    }
                 }
 
                 result.tuples.insert(newTuple);
@@ -152,49 +158,36 @@ class Relation {
 
         Relation join(const Relation& right) {
             const Relation& left = *this;
-            // Make a new scheme with right and this combined
-            set<string> seenScheme; // Used to prevent duplicates in Scheme
-            Scheme s;
-            for (string l : left.scheme) {
-                s.push_back(l);
-                seenScheme.insert(l);
-            }
-            for (string r : right.scheme) {
-                if (seenScheme.count(r) == 0) {
-                    s.push_back(r);
-                    seenScheme.insert(r);
+        
+            // Create a new scheme by combining the schemes of both relations
+            Scheme newScheme = left.scheme;
+            vector<int> rightIndicesToAdd;
+        
+            for (size_t i = 0; i < right.scheme.size(); i++) {
+                if (find(newScheme.begin(), newScheme.end(), right.scheme[i]) == newScheme.end()) {
+                    newScheme.push_back(right.scheme[i]);
+                    rightIndicesToAdd.push_back(i);
                 }
             }
-            // insert that new scheme into the result relation
-            // NOTE: I have no idea where 'name' even comes from or why it works . . .
-            Relation result(name, s); // Had to add a default constructor for this!
-            for (Tuple leftTuple : left.tuples) { // Does this need to be an & reference to change actual tuple?
-                // cout << "left tuple: " << leftTuple.toString(left.scheme) << endl;
-                for (Tuple rightTuple : right.tuples) {
-                    //cout << "right tuple: " << rightTuple.toString(right.scheme) << endl;
-                    // if left and right are joinable 
+        
+            Relation result(name, newScheme);
+        
+            // Combine tuples from both relations
+            for (const Tuple& leftTuple : left.tuples) {
+                for (const Tuple& rightTuple : right.tuples) {
                     if (joinable(left.scheme, right.scheme, leftTuple, rightTuple)) {
-                        set<string> seenVal; // Used to prevent duplicates in Tuple
-                        // combine left and right to make tuple t
-                        Tuple t; // Added another default constructor here
-                        for (string tup : leftTuple) {
-                            t.push_back(tup);
-                            seenVal.insert(tup);
+                        Tuple newTuple = leftTuple;
+        
+                        // Add values from the right tuple that are not already in the left tuple
+                        for (int index : rightIndicesToAdd) {
+                            newTuple.push_back(rightTuple[index]);
                         }
-                        for (string tup : rightTuple) {
-                            if (seenVal.count(tup) == 0) {
-                                t.push_back(tup);
-                                seenVal.insert(tup);
-                            }
-                        }
-                        // add tuple t to result
-                        result.addTuple(t);
+        
+                        result.addTuple(newTuple);
                     }
-                    
                 }
             }
-            // DEBUGGING
-            // cout << result.toString() << endl;
+        
             return result;
         }
 

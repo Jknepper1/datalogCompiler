@@ -71,7 +71,7 @@ class Interpreter {
                         result = result.join(tempRelations[i]);
                     }
                 }
-                // cout << result.toString();
+                // cout << "Joined but not Projected" << endl << result.toString();
 
                 // Step 3 of eval
                 vector<int> projectList;
@@ -114,31 +114,56 @@ class Interpreter {
 
                 Relation& target = database.getRelation(rule.getHead().getName());
 
-                size_t tupleBefore = target.getTuples().size();
+                // Iteration tracking
+                size_t beforeSize = target.getTuples().size();
+                set<Tuple> tuplesBefore = target.getTuples();
+
                 target.uni(result);
-                size_t tupleAfter = target.getTuples().size();
 
-                if (tupleBefore < tupleAfter) {
+                size_t afterSize = target.getTuples().size();
+                set<Tuple> tuplesAfter = target.getTuples();
+
+                if (beforeSize < afterSize) {
                     addedNewTuples = true;
+                }
 
+                // String Printing
+                vector<Tuple> newlyAdded;
+                for (Tuple t : tuplesAfter) {
+                    if (tuplesBefore.find(t) == tuplesBefore.end()) {
+                        newlyAdded.push_back(t);
+                    }
                 }
                 
+                cout << rule.toString() << endl;
+
+                if (!newlyAdded.empty()) {
+                    for (Tuple t : newlyAdded){    
+                        for (size_t i = 0; i < t.size(); i++) {
+                            cout << "  " << target.getScheme().at(i) << "=" << t.at(i);
+                            if (i < t.size() - 1) {
+                                cout << ",";
+                            }
+                        }
+                        cout << endl;
+                    }
+                }
             }
             iterations++;
         }
 
         // String Printing
-        for (Rule r : datalog.getRules()){
-            cout << r.toString() << endl;
-            Relation rel = database.getRelation(r.getHead().getName());
-            for (Tuple t : rel.getTuples()){    
-                for (size_t i = 0; i < t.size(); i++) {
-                    cout << " " << rel.getScheme().at(i) << "=" << t.at(i);
-                }
-                cout << endl;
-            }
-        }
-        cout << endl << "Schemes populated after " << iterations << " passes through the Rules" << endl << endl;
+        // for (Rule r : datalog.getRules()){
+        //     cout << r.toString() << endl;
+        //     Relation rel = database.getRelation(r.getHead().getName());
+        //     for (Tuple t : rel.getTuples()){    
+        //         for (size_t i = 0; i < t.size(); i++) {
+        //             cout << " " << rel.getScheme().at(i) << "=" << t.at(i);
+        //         }
+        //         cout << endl;
+        //     }
+        // }
+        cout << endl << "Schemes populated after " << iterations << " passes through the Rules." << endl << endl;
     }
 
     void evaluate() {
@@ -269,7 +294,7 @@ class Interpreter {
                         cout << " Yes(" << r.getTuples().size() << ")" << endl;
                     }
                     for (const Tuple &tuple : r.getTuples()) {
-                        cout << " ";
+                        cout << "  ";
                         bool first = true;
                         for (size_t i = 0; i < tuple.size(); i++) {
                             if (!first) {
