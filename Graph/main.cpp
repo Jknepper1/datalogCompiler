@@ -36,9 +36,12 @@ int main() {
     // first is name for head predicate
     // second is names for body predicates
     pair<string,vector<string>> ruleNames[] = {
-        { "A", { "B" } },
-        { "B", { "B", "A" } },
-    };
+        { "A", { "B", "C" } },
+        { "B", { "A", "D" } },
+        { "B", { "B" } },
+        { "E", { "F", "G" } },
+        { "E", { "E", "F" } },
+      };
 
     vector<Rule> rules;
 

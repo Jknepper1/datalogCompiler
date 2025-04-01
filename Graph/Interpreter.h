@@ -317,14 +317,19 @@ class Interpreter {
 
     static Graph makeGraph(const vector<Rule>& rules) {
         Graph graph(rules.size());
-        // CURRENTLY MISSING R1, R2, R3, etc.
         // Code to add edges
-        for (Rule r : rules) {
-            cout << "from rule " << r.toString() << endl;
+        for (int i = 0; i < rules.size(); i++) {
+            Rule r = rules[i];
+            cout << "from rule R" << i << ": " << r.toString() << endl;
             for (Predicate p : r.getBody()) {
                 cout << "from body predicate: " << p.toString() << endl;
-                for (Rule ru : rules) {
-                    cout << "to rule " << ru.toString() << endl;
+                for (int j = 0; j < rules.size(); j++) {
+                    Rule toRule = rules[j];
+                    cout << "to rule " << "R" << j << ": " << toRule.toString() << endl;
+                    if (p.toString() == toRule.getHead().toString()) {
+                        cout << "Dependency found: (R" << i << ",R" << j << ")" << endl;
+                        graph.addEdge(i, j);
+                    }
                 }
             }
         }
