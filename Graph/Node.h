@@ -34,4 +34,7 @@ class Node {
             return out.str();
 
         }
+    set<int> getEdges() const {
+        return adjacentNodeIDs;
+    }
 };

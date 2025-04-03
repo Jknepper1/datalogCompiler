@@ -214,6 +214,15 @@ class Interpreter {
         //     cout << r.toString();
         // }
 
+        // DEPENDENCY GRAPH
+        Graph ruleGraph = makeGraph(datalog.getRules());
+        cout << "Original Graph: " << endl << 
+        ruleGraph.toString() << endl;
+
+        Graph reversed = reverse(ruleGraph);
+        cout << "Reversed Graph: " << endl <<
+        reversed.toString() << endl;
+
         // RULES
         cout << "Rule Evaluation" << endl;
         evaluateRules();
@@ -320,20 +329,32 @@ class Interpreter {
         // Code to add edges
         for (int i = 0; i < rules.size(); i++) {
             Rule r = rules[i];
-            cout << "from rule R" << i << ": " << r.toString() << endl;
+            //cout << "from rule R" << i << ": " << r.toString() << endl;
             for (Predicate p : r.getBody()) {
-                cout << "from body predicate: " << p.toString() << endl;
+                //cout << "from body predicate: " << p.toString() << endl;
                 for (int j = 0; j < rules.size(); j++) {
                     Rule toRule = rules[j];
-                    cout << "to rule " << "R" << j << ": " << toRule.toString() << endl;
-                    if (p.toString() == toRule.getHead().toString()) {
-                        cout << "Dependency found: (R" << i << ",R" << j << ")" << endl;
+                    //cout << "to rule " << "R" << j << ": " << toRule.toString() << endl;
+                    if (p.getName() == toRule.getHead().getName()) {
+                        //cout << "Dependency found: (R" << i << ",R" << j << ")" << endl;
                         graph.addEdge(i, j);
                     }
                 }
             }
         }
-
         return graph;
+    }
+
+    Graph reverse(Graph ogGraph) {
+        Graph reversed(ogGraph.getNodes().size()); // Create new graph with same number of nodes
+        for (auto& pair : ogGraph.getNodes()) { // Iterate over the nodes in original graph
+            // int fromNode = pair.second;
+            int fromNode = pair.first; // Get current node ID
+            for (int toNode : pair.second.getEdges()) { // Iterate over edges of current node
+                reversed.addEdge(toNode, fromNode); // REverse edge direction in new graph
+            }
+        }
+
+        return reversed;
     }
 };

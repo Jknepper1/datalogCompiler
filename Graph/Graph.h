@@ -36,4 +36,8 @@ class Graph {
         return out.str();
     }
 
+    map<int, Node> getNodes() {
+        return nodes;
+    }
+
 };
