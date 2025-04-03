@@ -18,7 +18,7 @@ using namespace std;
 
 int main(int argc, char* argv[]) {
 
-    string filename = "testText1.txt";
+    string filename = "81Test.txt";
     ifstream in(filename);
 
     stringstream buffer;

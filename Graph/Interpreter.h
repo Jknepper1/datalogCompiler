@@ -1,8 +1,8 @@
 #include <set>
+#include <stack>
 #include <string>
 #include <unordered_map>
 #include <vector>
-#include <stack>
 
 #include "Database.h"
 #include "DatalogProgram.h"
@@ -22,7 +22,6 @@ class Interpreter {
     Interpreter(const Database &database, const DatalogProgram &datalog)
         : database(database), datalog(datalog) {}
 
-    
     void evaluateRules() {
         vector<Relation> tempRelations;
         int ruleEvals = 0;
@@ -31,7 +30,7 @@ class Interpreter {
         bool addedNewTuples = true;
 
         // Count tuple amounts before rule evals
-        while(addedNewTuples) {
+        while (addedNewTuples) {
             addedNewTuples = false;
 
             for (Rule rule : datalog.getRules()) {
@@ -67,7 +66,8 @@ class Interpreter {
 
                 // Step 2 of eval
 
-                // Set result to first relation; iterate through rest of relations appending joins to result
+                // Set result to first relation; iterate through rest of relations appending joins
+                // to result
                 Relation result = tempRelations[0];
                 if (tempRelations.size() > 1) {
                     for (size_t i = 1; i < tempRelations.size(); i++) {
@@ -85,8 +85,8 @@ class Interpreter {
                     headAttributes.push_back(p.toString());
                 }
 
-                // Searches for each head attribute in the relation's scheme and returns it's index to
-                // be projected with
+                // Searches for each head attribute in the relation's scheme and returns it's index
+                // to be projected with
                 for (string attr : headAttributes) {
                     for (size_t i = 0; i < result.getScheme().size(); i++) {
                         if (result.getScheme()[i] == attr) {
@@ -115,7 +115,7 @@ class Interpreter {
 
                 // Step 5 of Eval
 
-                Relation& target = database.getRelation(rule.getHead().getName());
+                Relation &target = database.getRelation(rule.getHead().getName());
 
                 // Iteration tracking
                 size_t beforeSize = target.getTuples().size();
@@ -137,12 +137,12 @@ class Interpreter {
                         newlyAdded.push_back(t);
                     }
                 }
-                
+
                 cout << rule.toString();
                 cout << "." << endl;
 
                 if (!newlyAdded.empty()) {
-                    for (Tuple t : newlyAdded){    
+                    for (Tuple t : newlyAdded) {
                         for (size_t i = 0; i < t.size(); i++) {
                             cout << "  " << target.getScheme().at(i) << "=" << t.at(i);
                             if (i < t.size() - 1) {
@@ -160,14 +160,16 @@ class Interpreter {
         // for (Rule r : datalog.getRules()){
         //     cout << r.toString() << endl;
         //     Relation rel = database.getRelation(r.getHead().getName());
-        //     for (Tuple t : rel.getTuples()){    
+        //     for (Tuple t : rel.getTuples()){
         //         for (size_t i = 0; i < t.size(); i++) {
         //             cout << " " << rel.getScheme().at(i) << "=" << t.at(i);
         //         }
         //         cout << endl;
         //     }
         // }
-        cout << endl << "Schemes populated after " << iterations << " passes through the Rules." << endl << endl;
+        cout << endl
+             << "Schemes populated after " << iterations << " passes through the Rules." << endl
+             << endl;
     }
 
     void evaluate() {
@@ -203,7 +205,8 @@ class Interpreter {
             Tuple tup(values);
 
             // Find the relation the fact belongs to and then add it as a tuple
-            for (Relation &r : database.getRelations()) { // & points to actual database instead of just a copy
+            for (Relation &r :
+                 database.getRelations()) { // & points to actual database instead of just a copy
                 if (fact.getName() == r.getName()) {
                     r.addTuple(tup);
                 }
@@ -216,25 +219,33 @@ class Interpreter {
         // }
 
         // DEPENDENCY GRAPH
-        Graph ruleGraph = makeGraph(datalog.getRules());
-        cout << "Original Graph: " << endl << 
-        ruleGraph.toString() << endl;
+        Graph ogGraph = makeGraph(datalog.getRules());
+        cout << "Original Graph: " << endl << ogGraph.toString() << endl;
 
-        Graph reversed = reverse(ruleGraph);
-        cout << "Reversed Graph: " << endl <<
-        reversed.toString() << endl;
+        Graph reversed = reverse(ogGraph);
+        cout << "Reversed Graph: " << endl << reversed.toString() << endl;
 
         stack<int> nodes = dfsForest(reversed);
         cout << "DFS Forest Result: " << endl;
-        while (nodes.size() != 0) {
-            int i = nodes.top();
-            cout << i << endl;
-            nodes.pop();
+        // while (nodes.size() != 0) {
+        //     int i = nodes.top();
+        //     cout << i << endl;
+        //     nodes.pop();
+        // }
+
+        vector<set<int>> SCCs = findSCCs(nodes, ogGraph);
+        int i = 0;
+        for (auto& scc : SCCs) {
+            cout << "SCC: " << i << endl;
+            for (auto& j : scc) {
+                cout << "   Node: " << j << endl;
+            }
+            i++;
         }
+
         // RULES
         cout << "Rule Evaluation" << endl;
         evaluateRules();
-        
 
         // Relation population proof
         // cout << endl;
@@ -332,19 +343,19 @@ class Interpreter {
         }
     }
 
-    static Graph makeGraph(const vector<Rule>& rules) {
+    static Graph makeGraph(const vector<Rule> &rules) {
         Graph graph(rules.size());
         // Code to add edges
         for (int i = 0; i < rules.size(); i++) {
             Rule r = rules[i];
-            //cout << "from rule R" << i << ": " << r.toString() << endl;
+            // cout << "from rule R" << i << ": " << r.toString() << endl;
             for (Predicate p : r.getBody()) {
-                //cout << "from body predicate: " << p.toString() << endl;
+                // cout << "from body predicate: " << p.toString() << endl;
                 for (int j = 0; j < rules.size(); j++) {
                     Rule toRule = rules[j];
-                    //cout << "to rule " << "R" << j << ": " << toRule.toString() << endl;
+                    // cout << "to rule " << "R" << j << ": " << toRule.toString() << endl;
                     if (p.getName() == toRule.getHead().getName()) {
-                        //cout << "Dependency found: (R" << i << ",R" << j << ")" << endl;
+                        // cout << "Dependency found: (R" << i << ",R" << j << ")" << endl;
                         graph.addEdge(i, j);
                     }
                 }
@@ -355,22 +366,22 @@ class Interpreter {
 
     Graph reverse(Graph ogGraph) {
         Graph reversed(ogGraph.getNodes().size()); // Create new graph with same number of nodes
-        for (auto& pair : ogGraph.getNodes()) { // Iterate over the nodes in original graph
+        for (auto &pair : ogGraph.getNodes()) {    // Iterate over the nodes in original graph
             // int fromNode = pair.second;
-            int fromNode = pair.first; // Get current node ID
+            int fromNode = pair.first;                  // Get current node ID
             for (int toNode : pair.second.getEdges()) { // Iterate over edges of current node
-                reversed.addEdge(toNode, fromNode); // REverse edge direction in new graph
+                reversed.addEdge(toNode, fromNode);     // REverse edge direction in new graph
             }
         }
 
         return reversed;
     }
 
-    stack<int> dfsForest(Graph& graph) {
+    stack<int> dfsForest(Graph &graph) {
         set<int> visited;
         stack<int> postorder;
 
-        for (auto& pair : graph.getNodes()) {
+        for (auto &pair : graph.getNodes()) {
             int nodeID = pair.first;
             if (visited.find(nodeID) == visited.end()) { // If node is not in visited
                 dfs(nodeID, visited, postorder, graph);
@@ -380,13 +391,43 @@ class Interpreter {
         return postorder;
     }
 
-    void dfs(int nodeID, set<int>& visited, stack<int>& postorder, Graph& graph) {
+    void dfs(int nodeID, set<int> &visited, stack<int> &postorder, Graph &graph) {
         visited.insert(nodeID);
-        for ( auto& neighbor : graph.getNodes().at(nodeID).getEdges()) { // Iterates through each node adjacent to x
+        for (auto &neighbor :
+             graph.getNodes().at(nodeID).getEdges()) { // Iterates through each node adjacent to x
             if (visited.find(neighbor) == visited.end()) {
                 dfs(neighbor, visited, postorder, graph);
             }
         }
         postorder.push(nodeID);
+    }
+
+    vector<set<int>> findSCCs(stack<int> &postorder, Graph &ogGraph) {
+        vector<set<int>> SCCs;
+        set<int> visited;
+
+        while (!postorder.empty()) {
+            int nodeID = postorder.top();
+            postorder.pop();
+
+            if (visited.find(nodeID) == visited.end()) {
+                set<int> currentSCC;
+                dfsSCCs(nodeID, visited, currentSCC, ogGraph);
+                SCCs.push_back(currentSCC);
+            }
+        }
+        return SCCs;
+    }
+
+    void dfsSCCs(int nodeID, set<int> &visited, set<int> &currentSCC, Graph &graph) {
+        visited.insert(nodeID);
+        currentSCC.insert(nodeID);
+
+        for (int neighbor :
+             graph.getNodes().at(nodeID).getEdges()) { // Iterates through each node adjacent to x
+            if (visited.find(neighbor) == visited.end()) {
+                dfsSCCs(neighbor, visited, currentSCC, graph);
+            }
+        }
     }
 };
