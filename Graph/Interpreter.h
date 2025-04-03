@@ -2,6 +2,7 @@
 #include <string>
 #include <unordered_map>
 #include <vector>
+#include <stack>
 
 #include "Database.h"
 #include "DatalogProgram.h"
@@ -223,6 +224,13 @@ class Interpreter {
         cout << "Reversed Graph: " << endl <<
         reversed.toString() << endl;
 
+        stack<int> nodes = dfsForest(reversed);
+        cout << "DFS Forest Result: " << endl;
+        while (nodes.size() != 0) {
+            int i = nodes.top();
+            cout << i << endl;
+            nodes.pop();
+        }
         // RULES
         cout << "Rule Evaluation" << endl;
         evaluateRules();
@@ -356,5 +364,29 @@ class Interpreter {
         }
 
         return reversed;
+    }
+
+    stack<int> dfsForest(Graph& graph) {
+        set<int> visited;
+        stack<int> postorder;
+
+        for (auto& pair : graph.getNodes()) {
+            int nodeID = pair.first;
+            if (visited.find(nodeID) == visited.end()) { // If node is not in visited
+                dfs(nodeID, visited, postorder, graph);
+            }
+        }
+
+        return postorder;
+    }
+
+    void dfs(int nodeID, set<int>& visited, stack<int>& postorder, Graph& graph) {
+        visited.insert(nodeID);
+        for ( auto& neighbor : graph.getNodes().at(nodeID).getEdges()) { // Iterates through each node adjacent to x
+            if (visited.find(neighbor) == visited.end()) {
+                dfs(neighbor, visited, postorder, graph);
+            }
+        }
+        postorder.push(nodeID);
     }
 };
