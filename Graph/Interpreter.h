@@ -163,6 +163,8 @@ class Interpreter {
 
             if (singleRule && !selfDepend) {
                 //cout << "Evaluating single rule R" << ruleID << endl;
+                Rule rule = datalog.getRules()[ruleID];
+                cout << rule.toString() << "." << endl;
                 evaluateRule(datalog.getRules()[ruleID]);
                 passes = 1;
 
