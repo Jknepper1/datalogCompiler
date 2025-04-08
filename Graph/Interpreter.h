@@ -22,154 +22,172 @@ class Interpreter {
     Interpreter(const Database &database, const DatalogProgram &datalog)
         : database(database), datalog(datalog) {}
 
-    void evaluateRules() {
+    bool evaluateRule(Rule& rule) {
         vector<Relation> tempRelations;
-        int ruleEvals = 0;
-        int tupleBefore = 0;
-        int iterations = 0;
-        bool addedNewTuples = true;
+        int passes = 0;
 
-        // Count tuple amounts before rule evals
-        while (addedNewTuples) {
-            addedNewTuples = false;
+        // Step 1 of Eval
+        for (Predicate& p : rule.getBody()) {
+            Relation r = database.getRelation(p.getName());
+            vector<Parameter> params = p.getParams();
+            vector<int> projectList;
+            unordered_map<string, int> seenVars;
+            vector<string> renameList;
 
-            for (Rule rule : datalog.getRules()) {
-                tempRelations.clear(); // Wipes the list before new temps are appended
-
-                // Step 1 of Eval
-                for (Predicate p : rule.getBody()) {
-                    Relation r = database.getRelation(p.getName());
-                    vector<Parameter> params = p.getParams();
-                    vector<int> projectList;
-                    unordered_map<string, int> seenVars;
-                    vector<string> renameList;
-
-                    for (size_t i = 0; i < params.size(); i++) {
-                        Parameter param = params[i];
-                        if (param.isStringLiteral()) {
-                            r = r.select(i, param.toString());
-                        } else {
-                            string varName = param.toString();
-                            if (seenVars.count(varName)) {
-                                r = r.select2(seenVars[varName], i);
-                            } else {
-                                seenVars[varName] = i;
-                                projectList.push_back(i);
-                                renameList.push_back(varName);
-                            }
-                        }
-                    }
-                    r = r.project(projectList);
-                    r = r.rename(renameList);
-                    tempRelations.push_back(r);
-                }
-
-                // Step 2 of eval
-
-                // Set result to first relation; iterate through rest of relations appending joins
-                // to result
-                Relation result = tempRelations[0];
-                if (tempRelations.size() > 1) {
-                    for (size_t i = 1; i < tempRelations.size(); i++) {
-                        result = result.join(tempRelations[i]);
-                    }
-                }
-                // cout << "Joined but not Projected" << endl << result.toString();
-
-                // Step 3 of eval
-                vector<int> projectList;
-                vector<string> headAttributes;
-
-                // Get all attributes from head pred into comparison list
-                for (Parameter p : rule.getHead().getParams()) {
-                    headAttributes.push_back(p.toString());
-                }
-
-                // Searches for each head attribute in the relation's scheme and returns it's index
-                // to be projected with
-                for (string attr : headAttributes) {
-                    for (size_t i = 0; i < result.getScheme().size(); i++) {
-                        if (result.getScheme()[i] == attr) {
-                            projectList.push_back(i);
-                        }
-                    }
-                }
-
-                result = result.project(projectList);
-                // cout << result.toString();
-
-                // Step 4 of Eval
-                vector<string> renameAttributes;
-                for (Relation r : database.getRelations()) {
-
-                    if (r.getName() == rule.getHead().getName()) {
-                        // cout << "Found it!" << endl;
-                        for (string s : r.getScheme()) {
-                            renameAttributes.push_back(s);
-                        }
-                    }
-                }
-
-                // Create a new relation with the renamed scheme
-                result = result.rename(renameAttributes);
-
-                // Step 5 of Eval
-
-                Relation &target = database.getRelation(rule.getHead().getName());
-
-                // Iteration tracking
-                size_t beforeSize = target.getTuples().size();
-                set<Tuple> tuplesBefore = target.getTuples();
-
-                target.uni(result);
-
-                size_t afterSize = target.getTuples().size();
-                set<Tuple> tuplesAfter = target.getTuples();
-
-                if (beforeSize < afterSize) {
-                    addedNewTuples = true;
-                }
-
-                // String Printing
-                vector<Tuple> newlyAdded;
-                for (Tuple t : tuplesAfter) {
-                    if (tuplesBefore.find(t) == tuplesBefore.end()) {
-                        newlyAdded.push_back(t);
-                    }
-                }
-
-                cout << rule.toString();
-                cout << "." << endl;
-
-                if (!newlyAdded.empty()) {
-                    for (Tuple t : newlyAdded) {
-                        for (size_t i = 0; i < t.size(); i++) {
-                            cout << "  " << target.getScheme().at(i) << "=" << t.at(i);
-                            if (i < t.size() - 1) {
-                                cout << ",";
-                            }
-                        }
-                        cout << endl;
+            for (size_t i = 0; i < params.size(); i++) {
+                Parameter param = params[i];
+                if (param.isStringLiteral()) {
+                    r = r.select(i, param.toString());
+                } else {
+                    string varName = param.toString();
+                    if (seenVars.count(varName)) {
+                        r = r.select2(seenVars[varName], i);
+                    } else {
+                        seenVars[varName] = i;
+                        projectList.push_back(i);
+                        renameList.push_back(varName);
                     }
                 }
             }
-            iterations++;
+            r = r.project(projectList);
+            r = r.rename(renameList);
+            tempRelations.push_back(r);
         }
 
-        // String Printing
-        // for (Rule r : datalog.getRules()){
-        //     cout << r.toString() << endl;
-        //     Relation rel = database.getRelation(r.getHead().getName());
-        //     for (Tuple t : rel.getTuples()){
-        //         for (size_t i = 0; i < t.size(); i++) {
-        //             cout << " " << rel.getScheme().at(i) << "=" << t.at(i);
-        //         }
-        //         cout << endl;
-        //     }
-        // }
-        cout << endl
-             << "Schemes populated after " << iterations << " passes through the Rules." << endl
-             << endl;
+        // Step 2 of eval
+
+        // Set result to first relation; iterate through rest of relations appending joins
+        // to result
+        Relation result = tempRelations[0];
+        if (tempRelations.size() > 1) {
+            for (size_t i = 1; i < tempRelations.size(); i++) {
+                result = result.join(tempRelations[i]);
+            }
+        }
+        // cout << "Joined but not Projected" << endl << result.toString();
+
+        // Step 3 of eval
+        vector<int> projectList;
+        vector<string> headAttributes;
+
+        // Get all attributes from head pred into comparison list
+        for (Parameter& p : rule.getHead().getParams()) {
+            headAttributes.push_back(p.toString());
+        }
+
+        // Searches for each head attribute in the relation's scheme and returns it's index
+        // to be projected with
+        for (string& attr : headAttributes) {
+            for (size_t i = 0; i < result.getScheme().size(); i++) {
+                if (result.getScheme()[i] == attr) {
+                    projectList.push_back(i);
+                }
+            }
+        }
+
+        result = result.project(projectList);
+        // cout << result.toString();
+
+        // Step 4 of Eval
+        vector<string> renameAttributes;
+        for (Relation r : database.getRelations()) {
+
+            if (r.getName() == rule.getHead().getName()) {
+                // cout << "Found it!" << endl;
+                for (string s : r.getScheme()) {
+                    renameAttributes.push_back(s);
+                }
+            }
+        }
+
+        // Create a new relation with the renamed scheme
+        result = result.rename(renameAttributes);
+
+        // Step 5 of Eval
+
+        Relation& target = database.getRelation(rule.getHead().getName());
+
+        // Iteration tracking
+        size_t beforeSize = target.getTuples().size();
+        set<Tuple> tuplesBefore = target.getTuples();
+
+        target.uni(result);
+
+        size_t afterSize = target.getTuples().size();
+        set<Tuple> tuplesAfter = target.getTuples();
+
+        vector<Tuple> newlyAdded;
+            for (Tuple t : tuplesAfter) {
+                if (tuplesBefore.find(t) == tuplesBefore.end()) {
+                    newlyAdded.push_back(t);
+                }
+            }
+        
+        if (!newlyAdded.empty()) {
+            for (Tuple t : newlyAdded){    
+                for (size_t i = 0; i < t.size(); i++) {
+                    cout << "  " << target.getScheme().at(i) << "=" << t.at(i);
+                    if (i < t.size() - 1) {
+                        cout << ",";
+                    }
+                }
+                cout << endl;
+            }
+        }
+
+        if (beforeSize < afterSize) {
+            //cout << "Rule R"<< " added " << (afterSize - beforeSize) << " new tuples." << endl;
+            return true;
+        } else {
+            //cout << "Rule R" << " added no new tuples." << endl;
+            return false;
+        }
+    }
+
+    void evaluateSCCs(vector<set<int>>& SCCs, Graph ogGraph) {
+        for (set<int>& SCC : SCCs) {
+            int passes = 0;
+
+            cout << "SCC: ";
+            for (int ruleID : SCC) {
+                cout << "R" << ruleID << " ";
+            }
+            cout << endl;
+            
+        
+            bool addedNewTuples = true;
+            bool singleRule = (SCC.size() == 1);
+            int ruleID = *SCC.begin();
+
+            bool selfDepend = singleRule && ogGraph.getNodes().at(ruleID).getEdges().count(ruleID);
+
+            if (singleRule && !selfDepend) {
+                //cout << "Evaluating single rule R" << ruleID << endl;
+                evaluateRule(datalog.getRules()[ruleID]);
+                passes = 1;
+
+            } 
+            else {
+                while (addedNewTuples) {
+                    addedNewTuples = false;
+
+                    Rule rule = datalog.getRules()[ruleID];
+                    cout << rule.toString() << "." << endl;
+
+                    Relation target = database.getRelation(rule.getHead().getName());
+
+                    for (int ruleID : SCC) {
+                        bool newTuples = evaluateRule(datalog.getRules()[ruleID]);
+                        if (newTuples) {
+                            addedNewTuples = true;
+                        }
+                        passes++;
+                    }
+                }
+            }
+            cout << passes << " passes:" << " R" << ruleID << endl;
+        }
+
     }
 
     void evaluate() {
@@ -220,13 +238,13 @@ class Interpreter {
 
         // DEPENDENCY GRAPH
         Graph ogGraph = makeGraph(datalog.getRules());
-        cout << "Original Graph: " << endl << ogGraph.toString() << endl;
+        cout << "Dependency Graph: " << endl << ogGraph.toString() << endl;
 
         Graph reversed = reverse(ogGraph);
-        cout << "Reversed Graph: " << endl << reversed.toString() << endl;
+        //cout << "Reversed Graph: " << endl << reversed.toString() << endl;
 
         stack<int> nodes = dfsForest(reversed);
-        cout << "DFS Forest Result: " << endl;
+        //cout << "DFS Forest Result: " << endl;
         // while (nodes.size() != 0) {
         //     int i = nodes.top();
         //     cout << i << endl;
@@ -235,26 +253,18 @@ class Interpreter {
 
         vector<set<int>> SCCs = findSCCs(nodes, ogGraph);
         int i = 0;
-        for (auto& scc : SCCs) {
-            cout << "SCC: " << i << endl;
-            for (auto& j : scc) {
-                cout << "   Node: " << j << endl;
-            }
-            i++;
-        }
+        // for (auto& scc : SCCs) {
+        //     cout << "SCC: " << i << endl;
+        //     for (auto& j : scc) {
+        //         cout << "   Node: " << j << endl;
+        //     }
+        //     i++;
+        // }
 
         // RULES
         cout << "Rule Evaluation" << endl;
-        evaluateRules();
-
-        // Relation population proof
-        // cout << endl;
-        // cout << endl;
-        // cout << endl;
-        // cout << "Database after Rule Evaluation" << endl;
-        // for (Relation r : database.getRelations()) {
-        //     cout << r.toString();
-        // }
+        evaluateSCCs(SCCs, ogGraph);
+        cout << endl;
 
         // QUERIES - DOES THIS NEED TO BE DONE ON A COPY??
         cout << "Query Evaluation" << endl;
