@@ -147,12 +147,18 @@ class Interpreter {
     void evaluateSCCs(vector<set<int>>& SCCs, Graph ogGraph) {
         for (set<int>& SCC : SCCs) {
             int passes = 0;
-
+            
             cout << "SCC: ";
+            bool firstT = true;
             for (int ruleID : SCC) {
-                cout << "R" << ruleID << " ";
+                if (!firstT) {
+                    cout << ",";
+                }
+                cout << "R" << ruleID;
+                firstT = false;
             }
             cout << endl;
+
             
         
             bool addedNewTuples = true;
@@ -162,32 +168,42 @@ class Interpreter {
             bool selfDepend = singleRule && ogGraph.getNodes().at(ruleID).getEdges().count(ruleID);
 
             if (singleRule && !selfDepend) {
-                //cout << "Evaluating single rule R" << ruleID << endl;
                 Rule rule = datalog.getRules()[ruleID];
                 cout << rule.toString() << "." << endl;
                 evaluateRule(datalog.getRules()[ruleID]);
                 passes = 1;
-
             } 
+
             else {
                 while (addedNewTuples) {
                     addedNewTuples = false;
 
-                    Rule rule = datalog.getRules()[ruleID];
-                    cout << rule.toString() << "." << endl;
+                    // Rule rule = datalog.getRules()[ruleID];
+                    // cout << rule.toString() << "." << endl;
 
-                    Relation target = database.getRelation(rule.getHead().getName());
+                    // Relation target = database.getRelation(rule.getHead().getName());
 
                     for (int ruleID : SCC) {
-                        bool newTuples = evaluateRule(datalog.getRules()[ruleID]);
+                        Rule rule = datalog.getRules()[ruleID];
+                        cout << rule.toString() << "." << endl;
+                        bool newTuples = evaluateRule(rule);
                         if (newTuples) {
                             addedNewTuples = true;
                         }
-                        passes++;
                     }
+                    passes++;
                 }
             }
-            cout << passes << " passes:" << " R" << ruleID << endl;
+            cout << passes << " passes: ";
+            bool first = true;
+            for (int ruleID : SCC) {
+                if (!first) {
+                    cout << ",";
+                }
+                cout << "R" << ruleID;
+                first = false;
+            }
+            cout << endl;
         }
 
     }
